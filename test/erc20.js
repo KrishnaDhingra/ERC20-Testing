@@ -64,17 +64,53 @@ contract('ERC20Token', (accounts) => {
     const value = web3.utils.toBN(100)
     await token.approve(accounts[3], value, { from: accounts[2] }) // balance of accounts[2] is 0 but we created an allowance of accounts[3] with it of 100 tokens, so the transfer should not take place as the balance of accounts[2] is not enough
 
-    const allowance = await token.allowance(accounts[2], accounts[3])
-
-    const balance = await token.balanceOf(accounts[2])
-    console.log(allowance)
-    console.log(balance)
-
     await expectRevert(
       token.transferFrom(accounts[2], accounts[3], value, {
         from: accounts[3],
       }),
       'token balance too low',
     )
+  })
+
+  it('Should transfer tokens from one account to another', async () => {
+    const value = web3.utils.toBN(1000)
+    const balance1 = await token.balanceOf(accounts[3]) // right now it should be zero
+
+    const balance2 = await token.balanceOf(accounts[0])
+
+    const initialAllowance = await token.allowance(accounts[0], accounts[3])
+
+    assert(initialAllowance.isZero())
+
+    await token.approve(accounts[3], value)
+
+    const afterAllowing = await token.allowance(accounts[0], accounts[3])
+
+    assert(afterAllowing.eq(value))
+
+    receipt = await token.transferFrom(accounts[0], accounts[3], value, {
+      from: accounts[3],
+    })
+
+    // expectEvent(receipt, 'Transfer', {
+    //   tokenOwner: accounts[0],
+    //   spender: accounts[3],
+    //   tokens: value,
+    // })
+
+    balance3 = await token.balanceOf(accounts[3]) //balance of the spender after receiving money
+
+    console.log(balance3)
+
+    balance4 = await token.balanceOf(accounts[0]) // balance of the owner after giving money
+
+    assert(balance3.eq(value))
+    assert(balance4.eq(balance2.sub(value)))
+
+    // now the allowance between the two users should be zero
+
+    const finalAllowance = await token.allowance(accounts[0], accounts[3])
+
+    assert(finalAllowance.isZero())
   })
 })
