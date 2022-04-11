@@ -71,7 +71,7 @@ contract('ERC20Token', (accounts) => {
     console.log(balance)
 
     await expectRevert(
-      token.transfer(accounts[2], accounts[3], value, {
+      token.transferFrom(accounts[2], accounts[3], value, {
         from: accounts[3],
       }),
       'token balance too low',
