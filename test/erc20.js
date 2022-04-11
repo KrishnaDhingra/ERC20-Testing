@@ -100,8 +100,6 @@ contract('ERC20Token', (accounts) => {
 
     balance3 = await token.balanceOf(accounts[3]) //balance of the spender after receiving money
 
-    console.log(balance3)
-
     balance4 = await token.balanceOf(accounts[0]) // balance of the owner after giving money
 
     assert(balance3.eq(value))
